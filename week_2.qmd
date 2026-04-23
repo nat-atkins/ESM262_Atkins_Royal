@@ -24,3 +24,9 @@ p301_yearly <- p301 |>
 # calculate mean, range and standard deviation of percent streamflow across year
 mean(p301_yearly$percent_streamflow)
 ```
+
+# Sydney Making a Change
+
+```{r}
+sydney pushing a change to github
+```
