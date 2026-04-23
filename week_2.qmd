@@ -1,0 +1,20 @@
+---
+title: "week_2"
+format: html
+editor: visual
+---
+
+## Annual stream flow and precip
+
+calculating yearly streamflow and yearly precip and calculate percentage of each
+
+```{r}
+library(here)
+library(tidyverse)
+
+p301 <- read.csv(here("Data", "p301.csv"))
+
+#aggregate by water year
+p301_yearly <- p301 |>
+  group_by(wy)
+```
