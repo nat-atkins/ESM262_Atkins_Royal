@@ -26,7 +26,7 @@ mean(p301_yearly$percent_streamflow)
 ```
 #tring to create a conflict from the git hub repo
 
-# Sydney Making a Change
+# trying to create a conflict part 2
 
 ```{r}
 sydney pushing a change to github
