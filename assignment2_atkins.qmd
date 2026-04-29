@@ -27,7 +27,7 @@ temp_data <- readNWISdv(siteNumbers, parameterCd, startDate, endDate)
 write.csv(temp_data, here("Data", "usgs_stream_data_assn2.csv"), row.names = FALSE)
 ```
 
-### Load data in instead – use after initial download from server
+### Load data in instead – can use after initial download from server
 
 ```{r}
 temp_data_dwnld <- read.csv(here("Data","usgs_stream_data_assn2.csv"))
@@ -48,4 +48,24 @@ ggplot(temp_data, aes(x=Date, y=temp_C, color=site_no)) +
   labs(title="Stream Temperature at Willamette River Sites",
        x="Date", y="Temperature (°C)", color="Site Number") +
   theme_minimal()
+```
+
+### Calculate summary stats
+
+```{r}
+#fixing column names error
+ncol(temp_data)
+colnames(temp_data)
+
+colnames(temp_data) <- c("agency_cd", "site_no", "Date", "temp_C", "quality_cd", "col6", "col7")
+
+# calculate mean temperature per site
+site_means <- temp_data |>
+  group_by(site_no) |>
+  summarise(
+    mean_temp_C = mean(temp_C, na.rm = TRUE),
+    n_obs       = n()
+  )
+
+print(site_means)
 ```
