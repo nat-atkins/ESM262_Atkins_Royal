@@ -74,3 +74,5 @@ ggplot(temp_data, aes(x=Date, y=temp_C, color=site_no)) +
        x="Date", y="Temperature (°C)", color="Site Number") +
   theme_minimal()
 ```
+
+testing to see if this worked
