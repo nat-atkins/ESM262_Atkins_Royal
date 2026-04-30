@@ -54,7 +54,7 @@ parameterCd <- "00010"  # water temperature
 startDate <- "2010-01-01"
 endDate <- "2023-12-31"
 
-#temp_data <- readNWISdv(siteNumbers, parameterCd, startDate, endDate)
+temp_data <- readNWISdv(siteNumbers, parameterCd, startDate, endDate)
 
 # NAT ALREADY SAVED IT IN THE REPO
 ```
@@ -63,21 +63,24 @@ endDate <- "2023-12-31"
 
 ```{r}
 
-temp_data_dwnld <- read.csv(here("Data","usgs_stream_data_assn2.csv"))
+#temp_data <- read.csv(here("Data","usgs_stream_data_assn2.csv"))
 
 ```
 
 ## Clean it up and Plot it
 
 ```{r}
-# rename columns for clarity
-colnames(temp_data_dwnld) <- c("agency_cd", "site_no", "Date", "temp_C")
+
 # extract some date info for use later
-temp_data_dwnld$month = month(temp_data_dwnld$Date, label=TRUE)
-temp_data_dwnld$year = year(temp_data_dwnld$Date)
+temp_data$month = month(temp_data$Date, label=TRUE)
+temp_data$year = year(temp_data$Date)
+
+# rename columns for clarity
+colnames(temp_data)<- c("agency_cd","site_no","Date","temp_C","quality_cd","month","year")
+
 
 # check by plotting
-ggplot(temp_data_dwnld, aes(x=Date, y=temp_C, color=site_no)) +
+ggplot(temp_data, aes(x=Date, y=temp_C, color=site_no)) +
   geom_line() +
   labs(title="Stream Temperature at Willamette River Sites",
        x="Date", y="Temperature (°C)", color="Site Number") +
@@ -89,11 +92,10 @@ ggplot(temp_data_dwnld, aes(x=Date, y=temp_C, color=site_no)) +
 ```{r}
 
 # filter for July temperatures
-may_data <- subset(temp_data_dwnld, month == "May")
-# fit a GLM model to see if there is a trend in July temperatures over time, separated by site
+may_data <- subset(temp_data, month == "May")
+# fit a GLM model to see if there is a trend in May temperatures over time, separated by site
 may_model <- glm(temp_C ~ year*site_no, data = may_data)
 summary(may_model)
-
 
 ```
 
@@ -102,14 +104,10 @@ summary(may_model)
 ```{r}
 
 # AVERAGE TEMPERATURE ACROSS ALL SITES
-temp_mean<- mean(temp_data_dwnld$temp_C)
-
-
-# FIX COLUMN NAMES
-colnames(temp_data_dwnld)<- c("agency_cd","site_no","Date","temp_C","quality_cd","month","year")
+temp_mean<- mean(temp_data$temp_C)
 
 # AVERAGE GROUPED BY SITES (TABLE)
-sitemeans<- temp_data_dwnld|>
+sitemeans<- temp_data|>
   group_by(site_no)|>
   summarize(mean_temp = mean(temp_C, na.rm= TRUE))
 
@@ -117,3 +115,7 @@ sitemeans
 
 
 ```
+
+## Analysis
+
+We found that when comparing the slopes in May and June (Natasha), the difference between the temperature variations over the years is much larger in June in comparison to May. When looking at the P-values, we also found that for differences in May, there were insignificant results P \> 0.05, meaning that even if there are differences in the temperatures, they are largely insignificant changes for May.
