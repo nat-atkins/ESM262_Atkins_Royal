@@ -7,4 +7,10 @@ editor: visual
 
 ## Experiment – describe a data analysis
 
-One analysis that I would be interested in conducting is a model between stream temperatures over time and number of native vs nonnative fish in those streams
+One analysis that I would be interested in conducting is a model between stream temperatures over time and number of native vs nonnative fish in those streams.
+
+```{r}
+library(here)
+library(tidyverse)
+library(ggplot2)
+```
