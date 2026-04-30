@@ -102,3 +102,14 @@ june_data <- temp_data |>
 june_model <- glm(temp_C ~ year*site_no, data = june_data)
 summary(june_model)
 ```
+
+Visualizing the glm
+
+```{r}
+ggplot(june_data, aes(x = year, y = temp_C, color = as.factor(site_no))) +
+  #geom_point(alpha = 0.3) + # Raw data points
+  geom_smooth(method = "glm", formula = y ~ x, size = 1) + # Model fits
+  labs(x = "Year", y = "Temperature (C)", color = "Site") +
+  theme_minimal()
+
+```
