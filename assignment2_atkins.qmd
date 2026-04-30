@@ -1,0 +1,104 @@
+---
+title: "Assignment 2: USGS Stream"
+author: "Natasha Atkins"
+format: pdf
+editor: visual
+---
+
+## Week 3: Git and Stream Temperature
+
+## Downloading the USGS Data
+
+```{r}
+#install.packages("dataRetrieval") 
+library(dataRetrieval) 
+library(tidyverse) 
+library(here)  
+
+#get usgs data 
+siteNumbers <- c("14211720", "14211010", "14166000")
+parameterCd <- "00010"  # water temperature
+startDate <- "2010-01-01"
+endDate <- "2023-12-31"
+
+temp_data <- readNWISdv(siteNumbers, parameterCd, startDate, endDate)
+
+#save data as a csv
+write.csv(temp_data, here("Data", "usgs_stream_data_assn2.csv"), row.names = FALSE)
+```
+
+### Load data in instead – can use after initial download from server
+
+```{r}
+temp_data_dwnld <- read.csv(here("Data","usgs_stream_data_assn2.csv"))
+```
+
+## Data processing
+
+```{r}
+# rename columns for clarity
+colnames(temp_data) <- c("agency_cd", "site_no", "Date", "temp_C")
+# extract some date info for use later
+temp_data$month = month(temp_data$Date, label=TRUE)
+temp_data$year = year(temp_data$Date)
+
+# check by plotting
+ggplot(temp_data, aes(x=Date, y=temp_C, color=site_no)) +
+  geom_line() +
+  labs(title="Stream Temperature at Willamette River Sites",
+       x="Date", y="Temperature (°C)", color="Site Number") +
+  theme_minimal()
+```
+
+### Calculate summary stats
+
+```{r}
+#fixing column names error
+ncol(temp_data)
+colnames(temp_data)
+
+colnames(temp_data) <- c("agency_cd", "site_no", "Date", "temp_C", "quality_cd", "col6", "col7")
+
+# calculate mean, min, max temperature per site
+site_means <- temp_data |>
+  group_by(site_no) |>
+  summarise(
+    mean_temp_C = mean(temp_C, na.rm = TRUE),
+    n_obs       = n(),
+    min = min(temp_C, na.rm = TRUE),
+    max = max(temp_C, na.rm = TRUE)
+  )
+
+print(site_means)
+```
+
+## Natasha's Analysis
+
+### First, branch my individual analysis
+
+In the terminal type: Git branch Atkins – to establish the new branch. Then type: Git checkout Atkins to go to that branch.
+
+After branching, begin conducting analysis
+
+```{r}
+#how is month stored
+str(temp_data$Date)
+# filter for June temperatures -- addressing the Date format
+library(lubridate)
+library(dplyr)
+
+temp_data <- temp_data |>
+  mutate(month = month(Date),
+         year = year(Date))  # extract numeric month and year
+
+june_data <- temp_data |>
+  filter(month == 6)
+
+#filter for june temperatures (based on provided code)
+#june_data <- temp_data |>
+  #filter(month == "6")
+
+# fit a GLM model to see if there is a trend in June temperatures over time, separated by site
+june_model <- glm(temp_C ~ year*site_no, data = june_data)
+summary(june_model)
+```
