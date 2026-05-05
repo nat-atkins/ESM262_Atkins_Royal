@@ -116,10 +116,6 @@ sitemeans
 
 ```
 
-## Analysis
-
-We found that when comparing the slopes in May and June (Natasha), the difference between the temperature variations over the years is much larger in June in comparison to May. When looking at the P-values, we also found that for differences in May, there were insignificant results P \> 0.05, meaning that even if there are differences in the temperatures, they are largely insignificant changes for May.
-
 ## Visualization - Mean May Temps by Year at site 14211720
 
 ```{r}
@@ -145,3 +141,7 @@ may_site_plot
 
 
 ```
+
+## Conclusion and Analysis
+
+We found that when comparing the slopes in May and June (Natasha), the difference between the temperature variations over the years is much larger in June in comparison to May. When looking at the P-values, we also found that for differences in May, there were insignificant results P \> 0.05, meaning that even if there are differences in the temperatures, they are largely insignificant changes for May. When visualizing the May plot and trying to fit the temperatures to a line, we found that there is not a clear trend in increasing temperatures over the years.
