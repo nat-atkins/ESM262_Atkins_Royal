@@ -119,3 +119,29 @@ sitemeans
 ## Analysis
 
 We found that when comparing the slopes in May and June (Natasha), the difference between the temperature variations over the years is much larger in June in comparison to May. When looking at the P-values, we also found that for differences in May, there were insignificant results P \> 0.05, meaning that even if there are differences in the temperatures, they are largely insignificant changes for May.
+
+## Visualization - Mean May Temps by Year at site 14211720
+
+```{r}
+# FIRST MAKE A DF OF JUST THE MEAN YEARLY TEMPS DURING MAY AT THE SITE
+
+may_site_temps<- may_data|>
+  filter(site_no==14211720)|>
+  group_by(year)|>
+  summarize(mean_temp= mean(temp_C, na.rm= TRUE))
+
+# NOW PLOT THESE TEMPS
+
+may_site_plot<- ggplot(may_site_temps, aes(x=year, y=mean_temp))+
+  geom_point()+
+  labs(x="Year", y="Mean Temperature (Celsius)")+
+  geom_smooth(method = "lm")+
+  labs(title = "Mean Temperatures in May at Site 14211720")+
+  theme_classic()
+
+may_site_plot
+
+
+
+
+```
