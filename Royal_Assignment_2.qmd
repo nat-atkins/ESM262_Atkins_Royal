@@ -1,0 +1,147 @@
+---
+title: "Assignment 2"
+author: "Sydney Royal"
+format: html
+editor: visual
+---
+
+## Assignment Description
+
+Working together create a new repository that you will share
+
+- add a quarto file, with nice documentation, that downloads the data (call it something informative)
+
+- also store the data in the repository (e.g. as a csv or RData file) so that you can work with it without having to download it again
+
+- in your quarto file, add the option to load the data instead of accessing from NWIS server
+
+- add a code chunk that plots the data (e.g. using ggplot)
+
+- add a code chunk that calculates some summary statistics (e.g. mean, max, min temperature for each site)
+
+Make sure you push to *GitHub*.
+
+Now imagine you are working on a project, where you are looking trends in water temperature you want to figure out if a) there is a trend and b) if the slope (trend) is positive (increasing) or negative (decreasing) and c) if there are differences between sites
+
+Have each partner focus on trends for a different month
+
+Here’s some example code for how you might compute the trend of temperatures in a given month, the slope of the GLM model will tell you what the trend is (how much temperature increases/decreases per year)
+
+- Estimate for *year* tells you slope for first site
+
+- Estimate for *year:site_no14211010*, *year:site_no14211720* tells you how much greater (if positive) slope is for this site relative to first site
+
+- Estimates for *Intercept* and *site_no14211010*, *site_no14211010* set the baseline temperature to make regression work. You won’t use these. (An easier way to look at differences in mean temperature across sites is to calculate means for each)
+
+## Install Needed Packages
+
+```{r}
+
+#install.packages("dataRetrieval")
+library(dataRetrieval)
+library(tidyverse)
+library(here)
+
+
+```
+
+## Download the Data from the server
+
+```{r}
+
+siteNumbers <- c("14211720", "14211010", "14166000")
+parameterCd <- "00010"  # water temperature
+startDate <- "2010-01-01"
+endDate <- "2023-12-31"
+
+temp_data <- readNWISdv(siteNumbers, parameterCd, startDate, endDate)
+
+# NAT ALREADY SAVED IT IN THE REPO
+```
+
+## Download the Data from the repo instead
+
+```{r}
+
+#temp_data <- read.csv(here("Data","usgs_stream_data_assn2.csv"))
+
+```
+
+## Clean it up and Plot it
+
+```{r}
+
+# extract some date info for use later
+temp_data$month = month(temp_data$Date, label=TRUE)
+temp_data$year = year(temp_data$Date)
+
+# rename columns for clarity
+colnames(temp_data)<- c("agency_cd","site_no","Date","temp_C","quality_cd","month","year")
+
+
+# check by plotting
+ggplot(temp_data, aes(x=Date, y=temp_C, color=site_no)) +
+  geom_line() +
+  labs(title="Stream Temperature at Willamette River Sites",
+       x="Date", y="Temperature (°C)", color="Site Number") +
+  theme_minimal()
+```
+
+## Computing Trends (May)
+
+```{r}
+
+# filter for July temperatures
+may_data <- subset(temp_data, month == "May")
+# fit a GLM model to see if there is a trend in May temperatures over time, separated by site
+may_model <- glm(temp_C ~ year*site_no, data = may_data)
+summary(may_model)
+
+```
+
+## Calculate Averages Across Sites
+
+```{r}
+
+# AVERAGE TEMPERATURE ACROSS ALL SITES
+temp_mean<- mean(temp_data$temp_C)
+
+# AVERAGE GROUPED BY SITES (TABLE)
+sitemeans<- temp_data|>
+  group_by(site_no)|>
+  summarize(mean_temp = mean(temp_C, na.rm= TRUE))
+
+sitemeans
+
+
+```
+
+## Visualization - Mean May Temps by Year at site 14211720
+
+```{r}
+# FIRST MAKE A DF OF JUST THE MEAN YEARLY TEMPS DURING MAY AT THE SITE
+
+may_site_temps<- may_data|>
+  filter(site_no==14211720)|>
+  group_by(year)|>
+  summarize(mean_temp= mean(temp_C, na.rm= TRUE))
+
+# NOW PLOT THESE TEMPS
+
+may_site_plot<- ggplot(may_site_temps, aes(x=year, y=mean_temp))+
+  geom_point()+
+  labs(x="Year", y="Mean Temperature (Celsius)")+
+  geom_smooth(method = "lm")+
+  labs(title = "Mean Temperatures in May at Site 14211720")+
+  theme_classic()
+
+may_site_plot
+
+
+
+
+```
+
+## Conclusion and Analysis
+
+We found that when comparing the slopes in May and June (Natasha), the difference between the temperature variations over the years is much larger in June in comparison to May. When looking at the P-values, we also found that for differences in May, there were insignificant results P \> 0.05, meaning that even if there are differences in the temperatures, they are largely insignificant changes for May. When visualizing the May plot and trying to fit the temperatures to a line, we found that there is not a clear trend in increasing temperatures over the years.
