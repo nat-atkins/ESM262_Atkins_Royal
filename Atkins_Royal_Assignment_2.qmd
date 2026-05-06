@@ -63,7 +63,7 @@ ggplot(temp_data, aes(x=Date, y=temp_C, color=site_no)) +
 
 ```{r}
 
-# filter for July temperatures
+# filter for May temperatures
 may_data <- subset(temp_data, month == "May")
 # fit a GLM model to see if there is a trend in May temperatures over time, separated by site
 may_model <- glm(temp_C ~ year*site_no, data = may_data)
@@ -114,6 +114,40 @@ may_site_plot
 
 ```
 
+## Calculating Trends (June GLM)
+
+```{r}
+#how is month stored
+str(temp_data$Date)
+# filter for June temperatures -- addressing the Date format
+library(lubridate)
+library(dplyr)
+
+temp_data <- temp_data |>
+  mutate(month = month(Date),
+         year = year(Date))  #extract numeric month and year
+
+#filter for june temperatures (based on provided code that didn't work for me)
+#june_data <- temp_data |>
+  #filter(month == "6")
+
+# fit a GLM model to see if there is a trend in June temperatures over time, separated by site
+june_model <- glm(temp_C ~ year*site_no, data = june_data)
+summary(june_model)
+```
+
+## Visualization of the June GLM
+
+```{r}
+ggplot(june_data, aes(x = year, y = temp_C, color = as.factor(site_no))) +
+  geom_smooth(method = "glm", formula = y ~ x, size = 1) + 
+  labs(x = "Year", y = "Temperature (°C)", color = "Site") +
+  theme_minimal()
+
+```
+
 ## Conclusion and Analysis
 
 We found that when comparing the slopes in May and June (Natasha), the difference between the temperature variations over the years is much larger in June in comparison to May. When looking at the P-values, we also found that for differences in May, there were insignificant results P \> 0.05, meaning that even if there are differences in the temperatures, they are largely insignificant changes for May. When visualizing the May plot and trying to fit the temperatures to a line, we found that there is not a clear trend in increasing temperatures over the years.
+
+The June data revealed different results. The GLM output and the plot show that there is increasing June temperatures over the years at all the sites. Site 14166000 (red) is warming at a rate of about 0.1378 °C per year. Site 14211010 (green) is warming at a significantly faster rate than the red site at approximately 0.24 °C. Site 14211720 (blue) may be warming at a faster rate than the red site because of the positive estimate of 0.077. Additionally, the blue site has a warmer baseline temperature than the other two sites. It is important to note that the model is valid for the years tested, and maybe even for a few years into the future, but it should not be extrapolated very far into the future.
