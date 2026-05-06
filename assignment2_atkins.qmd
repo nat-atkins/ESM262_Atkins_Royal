@@ -59,13 +59,32 @@ colnames(temp_data)
 
 colnames(temp_data) <- c("agency_cd", "site_no", "Date", "temp_C", "quality_cd", "col6", "col7")
 
-# calculate mean temperature per site
+# calculate mean, min, max temperature per site
 site_means <- temp_data |>
   group_by(site_no) |>
   summarise(
     mean_temp_C = mean(temp_C, na.rm = TRUE),
-    n_obs       = n()
+    n_obs       = n(),
+    min = min(temp_C, na.rm = TRUE),
+    max = max(temp_C, na.rm = TRUE)
   )
 
 print(site_means)
+```
+
+## Natasha's Analysis
+
+### First, branch my individual analysis
+
+In the terminal type: Git branch Atkins – to establish the new branch. Then type: Git checkout Atkins to go to that branch.
+
+After branching, begin conducting analysis
+
+```{r}
+# filter for June temperatures
+june_data <- temp_data |>
+  filter(month == "6")
+# fit a GLM model to see if there is a trend in June temperatures over time, separated by site
+june_model <- glm(temp_C ~ year*site_no, data = june_data)
+summary(june_model)
 ```
