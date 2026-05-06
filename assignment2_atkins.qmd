@@ -52,12 +52,12 @@ ggplot(temp_data, aes(x=Date, y=temp_C, color=site_no)) +
 
 ### Calculate summary stats
 
-```{r}
 #fixing column names because it wasn't working
 ncol(temp_data)
 colnames(temp_data)
 
 colnames(temp_data) <- c("agency_cd", "site_no", "Date", "temp_C", "quality_cd", "col1", "col2")
+
 
 # calculate mean, min, max temperature per site
 site_means <- temp_data |>
@@ -91,9 +91,6 @@ temp_data <- temp_data |>
   mutate(month = month(Date),
          year = year(Date))  # extract numeric month and year
 
-june_data <- temp_data |>
-  filter(month == 6)
-
 #filter for june temperatures (based on provided code that didn't work for me)
 #june_data <- temp_data |>
   #filter(month == "6")
@@ -118,3 +115,4 @@ ggplot(june_data, aes(x = year, y = temp_C, color = as.factor(site_no))) +
 The GLM output and the plot show that there is increasing June temperatures over the years at all the sites. Site 14166000 (red) is warming by about 0.1378 °C per year, with a statistically significant trend as indicated by the small p value. Site 14211010 (green) is warming at a significantly faster rate than the red site at approximately 0.24 °C, as indicated by the p-value of 0.016 (less than 0.05). Site 14211720 (blue) may be warming at a faster rate than the red site because of the positive estimate of 0.077, but the p-value of 0.07 makes these findings less concrete. Additionally, the blue site has a warmer baseline temperature than the other two sites.
 
 Now, I will merge this back to the master branch to combine analysis with Sydney using git merge master in the terminal.
+r
