@@ -112,7 +112,6 @@ ggplot(june_data, aes(x = year, y = temp_C, color = as.factor(site_no))) +
 
 ### Results Summary
 
-The GLM output and the plot show that there is increasing June temperatures over the years at all the sites. Site 14166000 (red) is warming by about 0.1378 °C per year, with a statistically significant trend as indicated by the small p value. Site 14211010 (green) is warming at a significantly faster rate than the red site at approximately 0.24 °C, as indicated by the p-value of 0.016 (less than 0.05). Site 14211720 (blue) may be warming at a faster rate than the red site because of the positive estimate of 0.077, but the p-value of 0.07 makes these findings less concrete. Additionally, the blue site has a warmer baseline temperature than the other two sites.
+The GLM output and the plot show that there is increasing June temperatures over the years at all the sites. Site 14166000 (red) is warming at a rate of 0.1378 °C per year. Site 14211010 (green) is warming at a significantly faster rate than the red site at a rate of approximately 0.24 °C. Site 14211720 (blue) may be warming at a faster rate than the red site because of the positive estimate of 0.077. Additionally, the blue site has a warmer baseline temperature than the other two sites. It's important to note that this model is valid for the years tested, and may be valid even a few years ahead, but it would be hard to extrapolate very far into the future.
 
 Now, I will merge this back to the master branch to combine analysis with Sydney using git merge master in the terminal.
-r
