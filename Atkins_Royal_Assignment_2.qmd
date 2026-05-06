@@ -1,0 +1,119 @@
+---
+title: "Atkins_Royal_Assignment_2"
+author: "Natasha Atkins and Sydney Royal"
+format: pdf
+editor: visual
+---
+
+## Install Needed Packages
+
+```{r}
+
+#install.packages("dataRetrieval")
+library(dataRetrieval)
+library(tidyverse)
+library(here)
+
+
+```
+
+## Download the Data from the server
+
+```{r}
+
+siteNumbers <- c("14211720", "14211010", "14166000")
+parameterCd <- "00010"  # water temperature
+startDate <- "2010-01-01"
+endDate <- "2023-12-31"
+
+temp_data <- readNWISdv(siteNumbers, parameterCd, startDate, endDate)
+
+# NAT ALREADY SAVED IT IN THE REPO
+```
+
+## Download the Data from the repo instead
+
+```{r}
+
+#temp_data <- read.csv(here("Data","usgs_stream_data_assn2.csv"))
+
+```
+
+## Clean it up and Plot it
+
+```{r}
+
+# extract some date info for use later
+temp_data$month = month(temp_data$Date, label=TRUE)
+temp_data$year = year(temp_data$Date)
+
+# rename columns for clarity
+colnames(temp_data)<- c("agency_cd","site_no","Date","temp_C","quality_cd","month","year")
+
+
+# check by plotting
+ggplot(temp_data, aes(x=Date, y=temp_C, color=site_no)) +
+  geom_line() +
+  labs(title="Stream Temperature at Willamette River Sites",
+       x="Date", y="Temperature (°C)", color="Site Number") +
+  theme_minimal()
+```
+
+## Computing Trends (May)
+
+```{r}
+
+# filter for July temperatures
+may_data <- subset(temp_data, month == "May")
+# fit a GLM model to see if there is a trend in May temperatures over time, separated by site
+may_model <- glm(temp_C ~ year*site_no, data = may_data)
+summary(may_model)
+
+```
+
+## Calculate Averages Across Sites
+
+```{r}
+
+# AVERAGE TEMPERATURE ACROSS ALL SITES
+temp_mean<- mean(temp_data$temp_C)
+
+# AVERAGE GROUPED BY SITES (TABLE)
+sitemeans<- temp_data|>
+  group_by(site_no)|>
+  summarize(mean_temp = mean(temp_C, na.rm= TRUE))
+
+sitemeans
+
+
+```
+
+## Visualization - Mean May Temps by Year at site 14211720
+
+```{r}
+# FIRST MAKE A DF OF JUST THE MEAN YEARLY TEMPS DURING MAY AT THE SITE
+
+may_site_temps<- may_data|>
+  filter(site_no==14211720)|>
+  group_by(year)|>
+  summarize(mean_temp= mean(temp_C, na.rm= TRUE))
+
+# NOW PLOT THESE TEMPS
+
+may_site_plot<- ggplot(may_site_temps, aes(x=year, y=mean_temp))+
+  geom_point()+
+  labs(x="Year", y="Mean Temperature (Celsius)")+
+  geom_smooth(method = "lm")+
+  labs(title = "Mean Temperatures in May at Site 14211720")+
+  theme_classic()
+
+may_site_plot
+
+
+
+
+```
+
+## Conclusion and Analysis
+
+We found that when comparing the slopes in May and June (Natasha), the difference between the temperature variations over the years is much larger in June in comparison to May. When looking at the P-values, we also found that for differences in May, there were insignificant results P \> 0.05, meaning that even if there are differences in the temperatures, they are largely insignificant changes for May. When visualizing the May plot and trying to fit the temperatures to a line, we found that there is not a clear trend in increasing temperatures over the years.
