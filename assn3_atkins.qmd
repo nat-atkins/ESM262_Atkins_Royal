@@ -16,6 +16,7 @@ library(janitor)
 library(ggplot2)
 
 #create pm2.5 data
+set.seed(1)
 pm25 = runif(min=0, max=50, n=365)
 total = 0
 nvalues = 365
@@ -140,4 +141,4 @@ ggplot(seasonal_unhealthy_df, aes(x = season, y = count, fill = season)) +
 
 ## Summary – Interpretation for Managers
 
-The major patterns revealed from this analysis are that the longest streak of unhealthy days was 4 days in a row with unhealthy air quality (PM2.5 levels above 35.4 ug/m\^3). This unhealthy streak occurred during the winter on days 54-57 of the year. The season with the highest number of unhealthy days total was the summer with 33 unhealthy days. The season with the lowest was spring with 23. While all seasons had relatively similar amount of unhealthy days (as is expected with the uniform distribution we set to generate the data), spring having 10 less days than summer may indicate that scheduling outdoor activities, such as construction, land management, recreational events, might be safer to do in the spring than in the summer.
+The major patterns revealed from this analysis are that the longest streak of unhealthy days was 5 days in a row with unhealthy air quality (PM2.5 levels above 35.4 ug/m\^3). This unhealthy streak occurred during the summer on days 210-215 of the year. The season with the highest number of unhealthy days total was the winter with 28 unhealthy days. All 3 other seasons had 25 days of unhealthy air quality. While all seasons had relatively similar amount of unhealthy days (as is expected with the uniform distribution we set to generate the data), summer having 3 more days than other seasons may indicate that scheduling outdoor activities, such as construction, land management, recreational events, might be safer to do not in the summer.
