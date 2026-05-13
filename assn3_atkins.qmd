@@ -1,0 +1,143 @@
+---
+title: "Homework 3"
+author: "Natasha Atkins"
+format: pdf
+editor: visual
+---
+
+# Exploring Looping with Air Quality Data
+
+## Part 1: Build the dataset
+
+```{r}
+#load libraries
+library(tidyverse)
+library(janitor)
+library(ggplot2)
+
+#create pm2.5 data
+pm25 = runif(min=0, max=50, n=365)
+total = 0
+nvalues = 365
+pm25
+
+#days
+day = (1:365)
+
+#seasons
+season = ifelse(day <= 90, "winter",
+         ifelse(day <= 180, "spring",
+         ifelse(day <= 270, "summer", "fall")))
+season = as.factor(season)
+
+#risk
+risk = rep(NA, 365)
+
+#build data frame
+aq_dataframe = data.frame(day=day, pm25=pm25, season=season, risk=risk )
+head(aq_dataframe)
+summary(aq_dataframe)
+```
+
+## Part 2: Classify risk with a for loop
+
+```{r}
+#classify the thresholds
+
+#good_aq <= 12
+#moderate_aq > 12 & <= 35.4
+#unhealthy_aq > 35.4
+
+ndays = 365
+#initializing the variables
+max_unhealthy_streak = 0
+current_streak = 0
+
+#the beginning of the loop says to look through the rows (days) and for every pm value in that row determine if it meets the if condition
+#if the values are classified as good or moderate then they don't contribute to theunhealhty streak, so current_streak = 0
+
+for (i in 1:ndays){
+    if(aq_dataframe[i,"pm25"] <= 12) {
+      aq_dataframe[i, "risk"] = "good"
+      current_streak = 0
+    } else {
+        if (aq_dataframe[i,"pm25"] <= 35.4){
+        aq_dataframe[i, "risk"] = "moderate"
+        current_streak = 0
+        } else {
+          aq_dataframe[i, "risk"] = "unhealthy"
+          current_streak = current_streak +1
+          }
+    } 
+      if (current_streak > max_unhealthy_streak){
+      max_unhealthy_streak = current_streak
+      }
+} 
+print(max_unhealthy_streak)
+```
+
+## Part 3: Seasonal summary with a for loop
+
+```{r}
+# initialize vector
+seasonal_unhealthy = c(winter = 0, spring = 0, summer = 0, fall = 0)
+
+# iterate by looking at each row for each day
+for (i in 1:ndays){
+  # check for unhealthy day --> and if the day is unhealhty check the season
+  if (aq_dataframe[i, "risk"] == "unhealthy"){
+    if (aq_dataframe[i, "season"] == "winter"){
+      # count the day toward the correct season
+      seasonal_unhealthy[1] = seasonal_unhealthy[1]+1 
+    } else if (aq_dataframe[i, "season"] == "spring"){
+      seasonal_unhealthy[2] = seasonal_unhealthy[2]+1
+    } else if (aq_dataframe[i, "season"] == "summer"){
+      seasonal_unhealthy[3] = seasonal_unhealthy[3]+1
+    } else {
+      seasonal_unhealthy[4] = seasonal_unhealthy[4]+1
+    }
+  }
+}
+
+print(seasonal_unhealthy)
+```
+
+## Part 4: Visualize the data with plots
+
+```{r}
+#time series of pm2.5 values
+aq_plot <- ggplot(aq_dataframe, aes(x = day, y = pm25, color = season)) +
+  geom_line() +
+  theme_bw() +
+  labs(
+    title = sprintf("PM2.5 Levels Across the Year with the Maximum Number of Unhealthy Days Being %d days", max_unhealthy_streak),
+    x = "Day",
+    y = "PM2.5 Level"
+  )
+aq_plot
+
+```
+
+```{r}
+# bar chart of unhealthy days per season
+# build a data frame to access the number of unhealthy days for the plot
+seasonal_unhealthy_df <- data.frame(
+  season = names(seasonal_unhealthy),
+  count = as.numeric(seasonal_unhealthy)
+)
+
+ggplot(seasonal_unhealthy_df, aes(x = season, y = count, fill = season)) +
+  geom_col() +
+  theme_bw() +
+  labs(
+    title = sprintf("Unhealthy Days by Season with there being %d Days in Winter, %d Days in Spring, %d Days in Summer, and %d Days in Fall",
+                    seasonal_unhealthy["winter"], seasonal_unhealthy["spring"],
+                    seasonal_unhealthy["summer"], seasonal_unhealthy["fall"]),
+    x = "Season",
+    y = "Number of Unhealthy Days"
+  )
+```
+
+## Summary – Interpretation for Managers
+
+The major patterns revealed from this analysis are that the longest streak of unhealthy days was 4 days in a row with unhealthy air quality (PM2.5 levels above 35.4 ug/m\^3). This unhealthy streak occurred during the winter on days 54-57 of the year. The season with the highest number of unhealthy days total was the summer with 33 unhealthy days. The season with the lowest was spring with 23. While all seasons had relatively similar amount of unhealthy days (as is expected with the uniform distribution we set to generate the data), spring having 10 less days than summer may indicate that scheduling outdoor activities, such as construction, land management, recreational events, might be safer to do in the spring than in the summer.
