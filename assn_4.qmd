@@ -1,0 +1,45 @@
+---
+title: "Homework 4"
+author: "Natasha Atkins"
+format: pdf
+editor: visual
+---
+
+## Define the inputs, source the function, and run on test data
+
+```{r}
+# the formula I'm using: D = sum(n/N)^2
+# ni = the total number of organisms of species i
+# N = total number of organisms of all species
+# D is the result, which is simpsons diversity, which tells the probability that two individuals randomly selected from a sample will belong to the same species; closer to 0 means infinite diversity and closer to 1 means no diversity
+# To counter act the counterinuitiveness, we can do 1-D
+# 1-D = the probability that two individuals randomly selected from a sample will belong to different species
+
+# source the function
+library(here)
+
+source(here("diversity_function.R"))
+
+# generate test data
+set.seed(513)
+species_counts <- c(
+  rep("species_A", rpois(1, lambda = 32)),
+  rep("species_B", rpois(1, lambda = 18)),
+  rep("species_C", rpois(1, lambda = 10)),
+  rep("species_D", rpois(1, lambda = 4)),
+  rep("species_E", rpois(1, lambda = 2))
+)
+species_counts <- as.factor(species_counts)
+species_counts
+
+ni <- as.numeric(table(species_counts))  # counts per species
+N <- length(species_counts)              # total individuals
+
+
+# use the function
+testing_function <- species_div(ni, N)
+testing_function
+
+#subtract from one to determine how diverse the sample is, probability that 2 selected individuals will be from different species.
+print(1-testing_function)
+```
